@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     #My apps
+    'starwars',
     'graphene_django',
     #other apps
     'django.contrib.admin',

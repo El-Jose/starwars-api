@@ -10,12 +10,28 @@ class BaseModel(models.Model):
         abstract = True
 
 
+class Planet(BaseModel):
+
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
 class Character(BaseModel):
 
     name = models.CharField(max_length=100)
     height = models.CharField(max_length=10, blank=True)
     gender = models.CharField(max_length=40, blank=True)
     homeworld = models.ForeignKey(Planet, related_name="residents", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+
+class Producer(BaseModel):
+
+    name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
@@ -46,19 +62,3 @@ class Movie(BaseModel):
 
     def __str__(self):
         return self.title
-
-
-class Planet(BaseModel):
-
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
-
-
-class Producer(BaseModel):
-
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
