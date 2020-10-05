@@ -41,3 +41,73 @@ class Query(graphene.ObjectType):
 
     def resolve_planets(self, info, **kwargs):
         return Planet.objects.all()
+
+
+class CreatePlanet(graphene.Mutation):
+    id = graphene.Int()
+    name = graphene.String()
+
+
+    class Arguments:
+        name = graphene.String()
+
+
+    def mutate(self, info, name):
+        planet = Planet(name=name)
+        planet.save()
+
+        return CreatePlanet(
+            id=planet.id,
+            name=planet.name,
+        )
+
+
+class CreateCharacter(graphene.Mutation):
+    id = graphene.Int()
+    name = graphene.String()
+    height = graphene.String()
+    gender = graphene.String()
+    homeworld = graphene.String()
+
+
+    class Arguments:
+        name = graphene.String()
+        height = graphene.String()
+        gender = graphene.String()
+        homeworld = graphene.String()
+
+
+    def mutate(self, info, name, height, gender, homeworld):
+        planet_obj = Planet.objects.get(name=homeworld)
+        character = Character(name=name, height=height, gender=gender, homeworld=planet_obj)
+        character.save()
+
+        return CreateCharacter(
+            id=character.id,
+            name=character.name,
+            height=character.height,
+            gender=character.gender,
+            homeworld=character.homeworld.name,
+        )
+
+
+class CreateMovie(graphene.Mutation):
+    id = graphene.Int()
+    episode = graphene.Int()
+    director = graphene.String()
+    opening_text = graphene.String()
+    release_date = graphene.Date()
+    title = graphene.String()
+
+
+    class Arguments:
+        pass
+
+
+    def mutate(self, info, name, height, gender, homeworld):
+        pass
+
+
+class Mutation(graphene.ObjectType):
+    create_planet = CreatePlanet.Field()
+    create_character = CreateCharacter.Field()
