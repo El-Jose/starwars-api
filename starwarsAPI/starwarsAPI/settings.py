@@ -125,7 +125,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # GraphQL
-
 GRAPHENE = {
-    'SCHEMA': 'starwarsAPI.schema.schema',
+    'SCHEMA': 'starwarsAPI.schema.schema'  #  change your path
 }

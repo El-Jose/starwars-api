@@ -31,6 +31,7 @@ class MovieType(DjangoObjectType):
 class Query(graphene.ObjectType):
     characters = DjangoListField(CharacterType, search=graphene.String())
     planets = graphene.List(PlanetType)
+    movies = graphene.List(MovieType)
 
     def resolve_characters(self, info, search=None, **kwargs):
         if search:
@@ -41,6 +42,10 @@ class Query(graphene.ObjectType):
 
     def resolve_planets(self, info, **kwargs):
         return Planet.objects.all()
+
+    def resolve_movies(self, info, **kwargs):
+        return Movie.objects.all()
+
 
 
 class CreatePlanet(graphene.Mutation):
@@ -91,23 +96,34 @@ class CreateCharacter(graphene.Mutation):
         )
 
 
-class CreateMovie(graphene.Mutation):
-    id = graphene.Int()
+class PlanetInput(graphene.InputObjectType):
+    name = graphene.String()
+
+
+class MovieInput(graphene.InputObjectType):
     episode = graphene.Int()
     director = graphene.String()
     opening_text = graphene.String()
     release_date = graphene.Date()
     title = graphene.String()
+    planet= graphene.Field(PlanetInput)
+    
 
+class CreateMovie(graphene.Mutation):
+    movie = graphene.Field(MovieType)
 
     class Arguments:
-        pass
+        movie_data = MovieInput(required=True)
 
 
-    def mutate(self, info, name, height, gender, homeworld):
-        pass
+    def mutate(self, info, movie_data):
+        movie = Movie(**movie_data)
+        movie.save()
+        return CreateMovie(movie=movie)
 
 
 class Mutation(graphene.ObjectType):
     create_planet = CreatePlanet.Field()
     create_character = CreateCharacter.Field()
+    create_movie = CreateMovie.Field()
+
