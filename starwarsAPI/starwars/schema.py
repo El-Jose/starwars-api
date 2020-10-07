@@ -101,25 +101,33 @@ class PlanetInput(graphene.InputObjectType):
 
 
 class MovieInput(graphene.InputObjectType):
-    episode = graphene.Int()
+    episode_id = graphene.Int()
     director = graphene.String()
     opening_text = graphene.String()
     release_date = graphene.Date()
     title = graphene.String()
-    planet= graphene.Field(PlanetInput)
+    planets = graphene.List(PlanetInput)
     
 
 class CreateMovie(graphene.Mutation):
     movie = graphene.Field(MovieType)
 
     class Arguments:
-        movie_data = MovieInput(required=True)
+        movie_input = MovieInput(required=True)
 
 
-    def mutate(self, info, movie_data):
-        movie = Movie(**movie_data)
-        movie.save()
-        return CreateMovie(movie=movie)
+    def mutate(self, info, movie_input=None):
+        planets = []
+        for p in movie_input.planets:
+            planet = Planet.objects.get(name=p.name)
+            if planet is None:
+                return CreateMovie(movie=None)
+            planets.append(planet)
+        del movie_input['planets']
+        m = Movie(**movie_input)
+        m.save()
+        m.planets.set(planets)
+        return CreateMovie(movie=m)
 
 
 class Mutation(graphene.ObjectType):

@@ -44,14 +44,14 @@ class Movie(BaseModel):
     opening_text = models.TextField(max_length=1000)
     release_date = models.DateField()
     title = models.CharField(max_length=100)
-    characters = models.ManyToManyField(
-        Character,
-        related_name="characters_movie",
-        blank=True
-    )
     planets = models.ManyToManyField(
         Planet,
         related_name="planets_movie",
+        blank=True
+    )
+    characters = models.ManyToManyField(
+        Character,
+        related_name="characters_movie",
         blank=True
     )
     producers = models.ManyToManyField(
