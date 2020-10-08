@@ -58,8 +58,7 @@ class CreatePlanet(graphene.Mutation):
 
 
     def mutate(self, info, name):
-        planet = Planet(name=name)
-        planet.save()
+        planet, created = Planet.objects.get_or_create(name=name)
 
         return CreatePlanet(
             id=planet.id,

@@ -1,6 +1,7 @@
+import json
 import pytest
 
-from .data import initializeMovieTests
+from .data import initializeMovieTests, initializePlanetTest
 from starwarsAPI.schema import schema
 
 pytestmark = pytest.mark.django_db
@@ -99,3 +100,39 @@ def test_create_movie_validate_fields_types():
     assert "invalid value" in result.errors[0].message
     assert "Expected type \"String\"" in result.errors[0].message
     assert "Expected type \"Int\"" in result.errors[0].message
+
+def test_create_planet():
+    initializePlanetTest()
+
+    query = """
+        mutation {
+          createPlanet(name: "Andromeda") {
+            name
+          }
+        }
+    """
+
+    response = {
+            "createPlanet": {
+                "name": "Andromeda"
+            }
+        }
+
+    result = schema.execute(query)
+    output_dict = json.loads(json.dumps(result.data))
+    assert output_dict == response
+    assert not result.errors
+
+def test_create_planet_validate_field_type():
+
+    query = """
+        mutation {
+          createPlanet(name: 4534534534534) {
+            name
+          }
+        }
+    """
+
+    result = schema.execute(query)
+    assert result.errors
+    assert "Expected type \"String\"" in result.errors[0].message
