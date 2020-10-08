@@ -1,14 +1,14 @@
 import json
 import pytest
 
-from .data import initializeMovieTests, initializePlanetTest
+from .data import initializeDummyPlanet
 from starwarsAPI.schema import schema
 
 pytestmark = pytest.mark.django_db
 
 
 def test_create_movie():
-    initializeMovieTests()
+    initializeDummyPlanet()
 
     query = """
         mutation {
@@ -19,7 +19,7 @@ def test_create_movie():
                 releaseDate:    "2020-10-06",
                 title: "La Amenaza Fantasma",
                 planets: [
-                  {name: "Tatooine"}
+                  {name: "Dummy planet"}
                 ]
               }) {
                 movie{
@@ -102,7 +102,6 @@ def test_create_movie_validate_fields_types():
     assert "Expected type \"Int\"" in result.errors[0].message
 
 def test_create_planet():
-    initializePlanetTest()
 
     query = """
         mutation {
@@ -113,10 +112,32 @@ def test_create_planet():
     """
 
     response = {
-            "createPlanet": {
-                "name": "Andromeda"
-            }
+        "createPlanet": {
+            "name": "Andromeda"
         }
+    }
+
+    result = schema.execute(query)
+    output_dict = json.loads(json.dumps(result.data))
+    assert output_dict == response
+    assert not result.errors
+
+def test_create_existing_planet():
+    initializeDummyPlanet()
+
+    query = """
+        mutation {
+          createPlanet(name: "Dummy planet") {
+            name
+          }
+        }
+    """
+
+    response = {
+        "createPlanet": {
+            "name": "Dummy planet"
+        }
+    }
 
     result = schema.execute(query)
     output_dict = json.loads(json.dumps(result.data))
@@ -130,6 +151,55 @@ def test_create_planet_validate_field_type():
           createPlanet(name: 4534534534534) {
             name
           }
+        }
+    """
+
+    result = schema.execute(query)
+    assert result.errors
+    assert "Expected type \"String\"" in result.errors[0].message
+
+def test_create_character():
+
+    query = """
+        mutation {
+            createCharacter(
+              gender: "Male",
+              height: "1.34 m",
+              homeworld: "New planet",
+              name: "Juanito"
+            ) {
+              name
+              homeworld
+            }
+        }
+    """
+
+    response = {
+        "createCharacter": {
+            "name": None,
+            "homeworld": None
+        }
+    }
+
+    result = schema.execute(query)
+    output_dict = json.loads(json.dumps(result.data))
+    assert output_dict == response
+    assert not result.errors
+
+
+def test_create_character_validate_fields_type():
+
+    query = """
+        mutation {
+            createCharacter(
+              gender: 345345,
+              height: 34343,
+              homeworld: 45345,
+              name: 76867
+            ) {
+              name
+              homeworld
+            }
         }
     """
 

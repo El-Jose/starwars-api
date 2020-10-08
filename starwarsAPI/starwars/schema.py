@@ -82,7 +82,10 @@ class CreateCharacter(graphene.Mutation):
 
 
     def mutate(self, info, name, height, gender, homeworld):
-        planet_obj = Planet.objects.get(name=homeworld)
+        try:
+            planet_obj = Planet.objects.get(name=homeworld)
+        except:
+            return CreateCharacter(None)
         character = Character(name=name, height=height, gender=gender, homeworld=planet_obj)
         character.save()
 
@@ -91,7 +94,7 @@ class CreateCharacter(graphene.Mutation):
             name=character.name,
             height=character.height,
             gender=character.gender,
-            homeworld=character.homeworld.name,
+            homeworld=character.homeworld,
         )
 
 
